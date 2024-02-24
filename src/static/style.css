@@ -1,0 +1,82 @@
+.tt-translator-button {
+  font-size: 13px;
+  margin-top: 5px;
+  white-space: initial;
+  cursor: pointer;
+}
+
+.tt-translator-button.hide {
+  display: none;
+}
+
+.tt-translator-button:hover {
+  text-decoration: underline;
+}
+
+.tt-translator-loading-container {
+  text-align: center;
+}
+.tt-translator-loading {
+  animation: spin 800ms infinite linear;
+  width: 30px;
+  height: 30px;
+}
+
+.tt-translator-result-container {
+  white-space: initial;
+}
+
+.tt-translator-result {
+  white-space: pre-line;
+}
+
+.tt-translator-result-header {
+  white-space: nowrap;
+  word-break: break-all;
+  font-size: 13px;
+  margin: 0 0 5px;
+}
+
+.tt-translator-result-supporter {
+  text-decoration: none;
+}
+
+.tt-translator-result-supporter > img {
+  height: auto;
+  max-width: 55px;
+  vertical-align: bottom;
+  margin: 0 2px;
+}
+
+.tt-translator-result-switch:hover {
+  text-decoration: underline;
+}
+
+.tt-post-btn-style:first-of-type {
+  margin-left: 0px;
+}
+
+.tt-post-btn-style {
+  cursor: pointer;
+  color: rgb(29, 155, 240);
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 6px;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(29, 155, 240);
+  border-image: initial;
+  background: transparent;
+  border-radius: 9999px;
+  padding: 3px 6px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Twitter Copilot",
+  "version": "1.0",
+  "description": "A Twitter Copilot Chrome Extension",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "service_worker.js"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "content_script.js"
+      ],
+      "matches": [
+        "https://twitter.com/*"
+      ],
+      "css": [
+        "static/style.css",
+        "content_script.css"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "static/images/main_logo_enable.png",
+    "32": "static/images/main_logo_enable.png",
+    "48": "static/images/main_logo_enable.png",
+    "64": "static/images/main_logo_enable.png",
+    "128": "static/images/main_logo_enable.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "static/images/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "clipboardRead",
+    "clipboardWrite",
+    "webRequest",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*.twitter.com/*",
+    "https://translate.googleapis.com/translate_a/single"
+  ]
+}
