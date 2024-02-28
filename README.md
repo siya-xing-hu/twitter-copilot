@@ -1,5 +1,7 @@
 # Twitter Copilot Extension
 
+![logo](src/static/images/main_logo_enable.png)
+
 Twitter tools for translation and AI content generation
 
 ## Setup
