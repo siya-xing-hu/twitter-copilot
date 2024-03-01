@@ -36,6 +36,7 @@ https://platform.openai.com/api-keys
 
 ### ORGANIZATION
 
+
 ```url
 https://platform.openai.com/account/organization
 ```
