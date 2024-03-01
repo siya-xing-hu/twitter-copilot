@@ -35,8 +35,8 @@ export default defineComponent({
       { label: 'OPENAI_ORGANIZATION', name: 'openaiOrganization', type: 'password', value: '', isLoading: false, isSuccess: false },
       {
         label: 'OPENAI_CHAT_MODEL', name: 'openaiChatModel', type: 'select', value: '', isLoading: false, isSuccess: false, options: [
-          { value: 'gpt-3.5-turbo-1106', label: 'gpt-3.5' },
-          { value: 'gpt-4-1106-preview', label: 'gpt-4.0' },
+          { value: 'gpt-3.5-turbo-1106', label: 'gpt-3.5', select: true },
+          { value: 'gpt-4-turbo-preview', label: 'gpt-4.0' },
         ]
       }
     ]);

@@ -216,8 +216,7 @@ chrome.runtime.onMessage.addListener(
           sendResponse({
             type: "reply-result",
             payload: {
-              data: resp.replace(/"/g, "").replace(/'/g, "").replace(/‘/g, "")
-                .replace(/“/g, ""),
+              data: resp.replace(/^['"“”‘’]+|['"‘’“”]+$/g, ""),
             },
           });
         }).catch((error) => {
