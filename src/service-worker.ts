@@ -152,7 +152,7 @@ chrome.runtime.onMessage.addListener(
         }
         retry(
           async () => {
-            const messageData = [
+            let messageData = [
               {
                 "role": "system",
                 "content":
@@ -164,6 +164,20 @@ chrome.runtime.onMessage.addListener(
                   `Keywords or content: '${userTweetText}', Controls: '${optionTag}'`,
               },
             ];
+            if ("Translate" == optionTag) {
+              messageData = [
+                {
+                  "role": "system",
+                  "content":
+                    "你是一个内容翻译器，请将我给你的内容翻译成美式本地英文，只输出翻译内容即可",
+                },
+                {
+                  "role": "user",
+                  "content": `${userTweetText}`,
+                },
+              ];
+            }
+            console.log(`messageData: ${JSON.stringify(messageData)}`);
             const res = await openaiCreate(messageData);
             return Promise.resolve(res);
           },

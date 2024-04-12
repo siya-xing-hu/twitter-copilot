@@ -36,6 +36,7 @@ const template: Template = {
     <div class="tt-post-btn-style">🔥 Joke</div>
     <div class="tt-post-btn-style">💡 Idea</div>
     <div class="tt-post-btn-style">❓ Question</div>
+    <div class="tt-post-btn-style">◑ Translate</div>
   </div>`,
   // postTextContent:
   //   '<span data-text="true">{0}</span>',

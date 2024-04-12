@@ -8,7 +8,8 @@
           <select v-if="field.type === 'select'" v-model="field.value"
             class="w-full mt-2 bg-gray-200 border-none rounded p-2 pr-10 text-sm text-gray-600">
             <!-- Assuming field.options is an array of options for the dropdown -->
-            <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}</option>
+            <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}
+            </option>
           </select>
           <input v-else :type="field.type" v-model="field.value"
             class="w-full mt-2 bg-gray-200 border-none rounded p-2 pr-10 text-sm text-gray-600" />
@@ -35,8 +36,8 @@ export default defineComponent({
       { label: 'OPENAI_ORGANIZATION', name: 'openaiOrganization', type: 'password', value: '', isLoading: false, isSuccess: false },
       {
         label: 'OPENAI_CHAT_MODEL', name: 'openaiChatModel', type: 'select', value: '', isLoading: false, isSuccess: false, options: [
-          { value: 'gpt-3.5-turbo-1106', label: 'gpt-3.5', select: true },
-          { value: 'gpt-4-turbo-preview', label: 'gpt-4.0' },
+          { value: 'gpt-3.5-turbo', label: 'gpt-3.5', select: true },
+          { value: 'gpt-4-turbo', label: 'gpt-4.0' },
         ]
       }
     ]);

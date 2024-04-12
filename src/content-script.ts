@@ -213,7 +213,7 @@ async function post(
 
         const userTweetText = tweetTextareaWrapper.innerText;
 
-        if (!userTweetText) {
+        if (!userTweetText || "" === userTweetText) {
           return;
         }
 
@@ -282,35 +282,78 @@ async function reply(
           "🔥 Joke": "Humor style",
           "💡 Idea": "Give a good opinion",
           "❓ Question": "Ask a question",
+          "◑ Translate": "Translate",
         }[targetText] ?? "Express approval";
 
         const replyTweetText = replayTweetTextWrapper.innerText;
 
-        if (!replyTweetText) {
+        if (!replyTweetText || "" === replyTweetText) {
           return;
         }
 
+        const userTweetText = tweetTextareaWrapper.innerText;
+
         isLoading = true;
-        const messageData: MessageData = {
-          type: "ai-reply",
-          payload: {
-            data: {
-              replyStyle,
-              replyTweetText,
+
+        if (replyStyle == "Translate") {
+          if (!userTweetText || "" === userTweetText) {
+            return;
+          }
+          const optionTag = "Translate";
+          const messageData: MessageData = {
+            type: "ai-post",
+            payload: {
+              data: {
+                optionTag,
+                userTweetText,
+              },
             },
-          },
-        };
-        chrome.runtime?.id &&
-          chrome.runtime.sendMessage(messageData, (resp: ResponseData) => {
-            isLoading = false;
+          };
+          chrome.runtime?.id &&
+            chrome.runtime.sendMessage(messageData, (resp: ResponseData) => {
+              isLoading = false;
 
-            // 如果 resp.type == post-error, 抛出异常
-            if (resp?.type === "reply-error") {
-              throw new Error(`Reply error occurred, ${resp?.payload?.data}`);
-            }
+              // 如果 resp.type == post-error, 抛出异常
+              if (resp?.type === "post-error") {
+                throw new Error(`Post error occurred, ${resp?.payload?.data}`);
+              }
 
-            setInputText(tweetTextareaWrapper, resp?.payload?.data);
-          });
+              // 设计一个弹框写入 resp?.payload?.aiPostResult 内容，同时给弹框添加确认和取消按钮和触发事件，取消 - 直接删除弹框，确认 - 先把弹框内容获取出来后删除弹框
+              // 显示弹框
+              createDialog(
+                resp?.payload?.data,
+                () => {
+                  // 确认按钮的回调
+                  setInputText(tweetTextareaWrapper, resp?.payload?.data);
+                },
+                () => {
+                  // 取消按钮的回调
+                  console.log("Operation cancelled.");
+                },
+              );
+            });
+        } else {
+          const messageData: MessageData = {
+            type: "ai-reply",
+            payload: {
+              data: {
+                replyStyle,
+                replyTweetText,
+              },
+            },
+          };
+          chrome.runtime?.id &&
+            chrome.runtime.sendMessage(messageData, (resp: ResponseData) => {
+              isLoading = false;
+
+              // 如果 resp.type == post-error, 抛出异常
+              if (resp?.type === "reply-error") {
+                throw new Error(`Reply error occurred, ${resp?.payload?.data}`);
+              }
+
+              setInputText(tweetTextareaWrapper, resp?.payload?.data);
+            });
+        }
       }
     },
     false,
