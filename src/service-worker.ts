@@ -2,7 +2,6 @@ import md5 from "blueimp-md5";
 import config from "./constants/config";
 import {
   MessageData,
-  randomString,
   ResponseData,
   retry,
   stringifyQueryParameter,
@@ -73,7 +72,10 @@ function updateAllTabsConfig(): void {
   });
 }
 
-async function openaiCreate(messageData: any): Promise<any> {
+async function openaiCreate(
+  messageData: any,
+  jsonFormate: boolean = true,
+): Promise<any> {
   const OPENAI_API_KEY = globalThis.config?.openaiApiKey;
   const OPENAI_ORGANIZATION = globalThis.config?.openaiOrganization;
   const OPENAI_CHAT_MODEL = globalThis.config?.openaiChatModel;
@@ -83,6 +85,14 @@ async function openaiCreate(messageData: any): Promise<any> {
   }
 
   console.log(`messages: ${messageData}`);
+  const reqBody = {
+    model: OPENAI_CHAT_MODEL,
+    messages: messageData,
+    response_format: {},
+  };
+  if (jsonFormate) {
+    reqBody.response_format = { type: "json_object" };
+  }
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -90,10 +100,7 @@ async function openaiCreate(messageData: any): Promise<any> {
       "OpenAI-Organization": OPENAI_ORGANIZATION,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model: OPENAI_CHAT_MODEL,
-      messages: messageData,
-    }),
+    body: JSON.stringify(reqBody),
   });
   const jsonData = await response.json();
   console.log(`openai result: ${JSON.stringify(jsonData)}`);
@@ -156,7 +163,7 @@ chrome.runtime.onMessage.addListener(
               {
                 "role": "system",
                 "content":
-                  "你是一个 twitter 内容生成者，我需要你按照用户的需求生成一条推文，用英文输出，只输出 tweet 内容即可",
+                  '你是一个 twitter 内容生成者，我需要你按照用户的需求生成一条推文，用英文输出，JSON 格式输出，输出格式： {"result": ""}',
               },
               {
                 "role": "user",
@@ -169,7 +176,7 @@ chrome.runtime.onMessage.addListener(
                 {
                   "role": "system",
                   "content":
-                    "你是一个内容翻译器，请将我给你的内容翻译成美式本地英文，只输出翻译内容即可",
+                    '你是一个内容翻译器，请将我给你的内容翻译成美式本地英文，JSON 格式输出，输出格式： {"result": ""}',
                 },
                 {
                   "role": "user",
@@ -177,9 +184,9 @@ chrome.runtime.onMessage.addListener(
                 },
               ];
             }
-            console.log(`messageData: ${JSON.stringify(messageData)}`);
             const res = await openaiCreate(messageData);
-            return Promise.resolve(res);
+            const result_json = JSON.parse(res);
+            return Promise.resolve(result_json.result);
           },
           1,
           5,
@@ -187,8 +194,7 @@ chrome.runtime.onMessage.addListener(
           sendResponse({
             type: "post-result",
             payload: {
-              data: resp.replace(/"/g, "").replace(/'/g, "").replace(/‘/g, "")
-                .replace(/“/g, ""),
+              data: resp,
             },
           });
         }).catch((error) => {
@@ -213,7 +219,7 @@ chrome.runtime.onMessage.addListener(
               {
                 "role": "system",
                 "content":
-                  "你是一个 twitter 内容回复者，我需要你按照用户的回复要求，结合待回复的原文，生成一条回复内容，用英文输出，只输出 reply 内容即可",
+                  '你是一个 twitter 内容回复者，我需要你按照用户的回复要求，结合待回复的原文，生成一条回复内容，用英文输出，JSON 格式输出，输出格式： {"result": ""}',
               },
               {
                 "role": "user",
@@ -222,7 +228,8 @@ chrome.runtime.onMessage.addListener(
               },
             ];
             const res = await openaiCreate(messageData);
-            return Promise.resolve(res);
+            const result_json = JSON.parse(res);
+            return Promise.resolve(result_json.result);
           },
           1,
           5,
@@ -230,7 +237,7 @@ chrome.runtime.onMessage.addListener(
           sendResponse({
             type: "reply-result",
             payload: {
-              data: resp.replace(/^['"“”‘’]+|['"‘’“”]+$/g, ""),
+              data: resp,
             },
           });
         }).catch((error) => {

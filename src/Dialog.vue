@@ -11,7 +11,7 @@
       </div>
       <!-- 标题和内容 -->
       <div class="text-center">
-        <span class="font-semibold">Notification</span>
+        <span class="font-semibold">AI Generate</span>
         <p class="mt-2 text-gray-600">{{ text }}</p>
       </div>
       <div class="flex justify-around mt-6">
