@@ -11,7 +11,7 @@ export function retry(
     const attempt = () => {
       fn().then(resolve).catch((error) => {
         if (maxLimit <= 0) {
-          reject(new Error("Time out!"));
+          console.error("Retry failed", error);
         } else {
           setTimeout(attempt, interval * 1000);
           maxLimit--;

@@ -297,8 +297,8 @@ async function xersMainInit(): Promise<boolean> {
 
 chrome.runtime.onMessage.addListener((request, _sender) => {
   if (request.type === "twitter-url") {
-    retry(xersMainInit, 0.5, 15);
-    retry(xersDialogInit, 0.5, 15);
+    retry(xersMainInit, 1, 15);
+    retry(xersDialogInit, 1, 15);
   }
 });
 
