@@ -4,6 +4,8 @@
 
 Twitter tools for translation and AI content generation
 
+将鼠标放置在“内容”区域，通过 Shift 键显示翻译和原文（任何网站）
+
 ## Setup
 
 Install pnpm
@@ -35,7 +37,6 @@ https://platform.openai.com/api-keys
 ```
 
 ### ORGANIZATION
-
 
 ```url
 https://platform.openai.com/account/organization
