@@ -69,7 +69,6 @@ export function debounce(
 }
 
 export function setInputText(inputEl: HTMLElement | null, text: string): void {
-  console.log(`hx ==== ai text ==== ${text}`);
   try {
     const dataTransfer = new DataTransfer();
     dataTransfer.setData("text/plain", text); // Prepare the text to be pasted

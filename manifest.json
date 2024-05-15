@@ -15,7 +15,7 @@
         "content_script.js"
       ],
       "matches": [
-        "https://twitter.com/*"
+        "<all_urls>"
       ],
       "css": [
         "static/style.css",
@@ -49,7 +49,6 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://*.twitter.com/*",
     "https://translate.googleapis.com/translate_a/single"
   ]
 }

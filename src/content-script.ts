@@ -4,163 +4,12 @@ import {
   ResponseData,
   retry,
   setInputText,
-  templateReplace,
 } from "./utils/common";
 import template from "./constants/template";
 import Dialog from "./Dialog.vue";
 import { createApp, h } from "vue";
 import "./main.css";
-
-let translator: string = "google";
-
-function addTranslatorButton(
-  $timelineWrapper: HTMLElement,
-  $translateButton: HTMLElement,
-): void {
-  let tweetWrapperList = [
-    ...$timelineWrapper.querySelectorAll(
-      `div[aria-label] article[role=article]
-      div[lang]:not([data-has-translator=true]):not([lang^=zh])`,
-    ),
-  ];
-
-  if (!tweetWrapperList.length) return;
-
-  // 只有在单个状态页面时才执行的逻辑
-  if (/twitter.com\/.+\/status\//.test(window.location.href)) {
-    tweetWrapperList = tweetWrapperList.filter(($tweetWrapper) => {
-      const $nextElement = $tweetWrapper.nextElementSibling;
-      if (
-        $nextElement?.getAttribute("role") === "button" ||
-        $nextElement?.querySelector("div > span[aria-expanded]")
-      ) {
-        if ($tweetWrapper.getAttribute("lang") === "en") {
-          return false; // 排除英语推文
-        } else {
-          $nextElement.remove(); // 移除已存在的按钮
-        }
-      }
-      return true;
-    });
-  }
-
-  tweetWrapperList.forEach(($tweetWrapper) => {
-    $tweetWrapper.setAttribute("data-has-translator", "true");
-    $tweetWrapper.textContent &&
-      $tweetWrapper.appendChild($translateButton.cloneNode(true));
-  });
-}
-
-async function init(): Promise<boolean> {
-  const $timelineWrapper = document.querySelector(
-    "main[role=main] div[data-testid=primaryColumn] section[role=region] div[aria-label] > div",
-  ) as HTMLElement;
-  if (!$timelineWrapper?.innerText) {
-    throw new Error("time line is not loaded");
-  }
-
-  // 添加翻译按钮
-  const $translateButton = createElement(template.translateButton);
-  const queriedElement = document.querySelector(
-    'header[role="banner"] a[href="/compose/tweet"]',
-  ) as HTMLElement | null;
-  const buttonColor = queriedElement
-    ? (getComputedStyle(queriedElement) as CSSStyleDeclaration).backgroundColor
-    : "rgb(29, 161, 242)";
-
-  $translateButton.style.color = buttonColor;
-
-  addTranslatorButton($timelineWrapper, $translateButton);
-  const observer = new MutationObserver(() => {
-    addTranslatorButton($timelineWrapper, $translateButton);
-  });
-  observer.observe($timelineWrapper, { childList: true });
-
-  // 添加翻译按钮响应事件
-  if ($timelineWrapper.getAttribute("data-is-event-ready") === "true") {
-    return true;
-  }
-  let isLoading = false;
-  $timelineWrapper.setAttribute("data-is-event-ready", "true");
-  $timelineWrapper.addEventListener(
-    "click",
-    (e) => {
-      if (isLoading) {
-        return;
-      }
-      const target = e.target as HTMLElement; // 断言 e.target 为 HTMLElement
-
-      if (
-        ["tt-translator-content", "tt-translator-button"].includes(
-          target.className,
-        )
-      ) {
-        const $textContainer = target.closest(
-          "div[data-has-translator=true]",
-        ) as HTMLElement;
-        const $button =
-          $textContainer.getElementsByClassName("tt-translator-button")[0];
-        const $loading = createElement(template.loading);
-
-        const loadingBackground = $loading.getElementsByClassName(
-          "tt-translator-loading-background",
-        )[0] as HTMLElement;
-        loadingBackground.style.stroke = buttonColor;
-        const loadingFront = $loading.getElementsByClassName(
-          "tt-translator-loading-front",
-        )[0] as HTMLElement;
-        loadingFront.style.stroke = buttonColor;
-
-        const text: string =
-          ($textContainer.textContent || "").split("翻译推文")[0];
-        const localeAttribute = $textContainer.getAttribute("lang") || "und";
-        const locale = { ja: "jp", und: "auto" }[localeAttribute] ??
-          localeAttribute;
-        const localeMap: Record<string, string> = { jp: "日语", en: "英语" };
-
-        $textContainer.appendChild($loading);
-        isLoading = true;
-        const messageData: MessageData = {
-          type: "translate",
-          payload: {
-            data: {
-              text,
-              locale,
-            },
-          },
-        };
-        chrome.runtime?.id &&
-          chrome.runtime.sendMessage(messageData, (resp: MessageData) => {
-            $loading.remove();
-            isLoading = false;
-            $button.classList.add("hide");
-
-            const $translateContent = createElement(
-              templateReplace(
-                template.fromDiv,
-                translator,
-                localeMap[locale] || "自动检测",
-                resp?.payload?.data,
-              ),
-            ) as HTMLElement;
-            const $switch = $translateContent.getElementsByClassName(
-              "tt-translator-result-switch",
-            )[0] as HTMLElement;
-            $switch.style.color = buttonColor;
-
-            $switch.addEventListener("click", () => {
-              $button.classList.remove("hide");
-              $translateContent.remove();
-            });
-            $textContainer.appendChild($translateContent);
-          });
-      }
-    },
-    false,
-  );
-
-  return true;
-}
+import { execTranslate } from "./utils/translate";
 
 // 创建和显示弹框
 function createDialog(
@@ -273,7 +122,6 @@ async function reply(
       const target = e.target as HTMLElement;
       if ("tt-post-btn-style" === target.className) {
         const targetText = target.innerText;
-        console.log(`hx ================ ${targetText}`);
 
         const replyStyle = {
           "👍": "Express approval",
@@ -447,16 +295,35 @@ async function xersMainInit(): Promise<boolean> {
   return await post($toolBarParentWrapper, $tweetTextareaWrapper);
 }
 
-chrome.runtime.onMessage.addListener((request: { type: string }, _sender) => {
-  if (request.type === "url-change") {
-    retry(init, 1, 15);
-
+chrome.runtime.onMessage.addListener((request, _sender) => {
+  if (request.type === "twitter-url") {
     retry(xersMainInit, 0.5, 15);
     retry(xersDialogInit, 0.5, 15);
   }
 });
 
-retry(init, 0.5, 15);
+let currentClientX = 0;
+let currentClientY = 0;
+let isTranslating = false;
 
-retry(xersMainInit, 0.5, 15);
-retry(xersDialogInit, 0.5, 15);
+// 监听鼠标悬停事件
+document.addEventListener("mouseover", (event) => {
+  currentClientX = event.clientX;
+  currentClientY = event.clientY;
+});
+
+// 监听 Shift 键的按下事件
+document.addEventListener("keydown", async (event) => {
+  if (event.shiftKey && currentClientX && currentClientY) {
+    if (isTranslating) {
+      return;
+    }
+    try {
+      await execTranslate(currentClientX, currentClientY);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      isTranslating = false;
+    }
+  }
+});
