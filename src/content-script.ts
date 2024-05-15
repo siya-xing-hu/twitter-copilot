@@ -1,3 +1,4 @@
+import "./popup.css";
 import {
   createElement,
   MessageData,
@@ -6,10 +7,9 @@ import {
   setInputText,
 } from "./utils/common";
 import template from "./constants/template";
-import Dialog from "./Dialog.vue";
+import Dialog from "./components/Dialog.vue";
 import { createApp, h } from "vue";
-import "./main.css";
-import { execTranslate } from "./utils/translate";
+import { execTranslate } from "./components/translate";
 
 // 创建和显示弹框
 function createDialog(

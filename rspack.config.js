@@ -17,7 +17,6 @@ const config = {
     new VueLoaderPlugin(),
     new rspack.HtmlRspackPlugin({
       filename: "popup.html",
-      template: "./index.html",
       chunks: ["popup"]
     }),
     new rspack.CopyRspackPlugin({
