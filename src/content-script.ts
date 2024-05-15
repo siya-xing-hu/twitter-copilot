@@ -10,6 +10,7 @@ import template from "./constants/template";
 import Dialog from "./components/Dialog.vue";
 import { createApp, h } from "vue";
 import { execTranslate } from "./components/translate";
+import { ttProductHuntReply } from "./components/_producthunt";
 
 // 创建和显示弹框
 function createDialog(
@@ -299,6 +300,9 @@ chrome.runtime.onMessage.addListener((request, _sender) => {
   if (request.type === "twitter-url") {
     retry(xersMainInit, 1, 15);
     retry(xersDialogInit, 1, 15);
+  }
+  if (request.type === "producthunt-url") {
+    retry(ttProductHuntReply, 1, 15);
   }
 });
 

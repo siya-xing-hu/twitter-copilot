@@ -68,7 +68,7 @@ export async function init(): Promise<void> {
             tabs.forEach((tab) => {
               if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
                 chrome.tabs.sendMessage(tab.id, {
-                  type: "url-change",
+                  type: "twitter-url",
                 });
               }
             });
@@ -179,19 +179,26 @@ export async function init(): Promise<void> {
         chrome.tabs.sendMessage(tabId, {
           type: "twitter-url",
         });
+      } else if (
+        changeInfo.status === "complete" && tab.url &&
+        (tab.url.startsWith("https://www.producthunt.com/"))
+      ) {
+        chrome.tabs.sendMessage(tabId, {
+          type: "producthunt-url",
+        });
       }
     },
   );
 
-  chrome.runtime.onInstalled.addListener(() => {
-    chrome.tabs.query({ url: "*://*.twitter.com/*" }, (tabs) => {
-      tabs.forEach((tab) => {
-        if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
-          chrome.tabs.sendMessage(tab.id, {
-            type: "twitter-url",
-          });
-        }
-      });
-    });
-  });
+  // chrome.runtime.onInstalled.addListener(() => {
+  //   chrome.tabs.query({ url: "*://*.twitter.com/*" }, (tabs) => {
+  //     tabs.forEach((tab) => {
+  //       if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
+  //         chrome.tabs.sendMessage(tab.id, {
+  //           type: "twitter-url",
+  //         });
+  //       }
+  //     });
+  //   });
+  // });
 }
