@@ -6,8 +6,15 @@ import {
   HandlerParams,
 } from "./button";
 import { createDialogContainer } from "./dialog";
+import { execObserver } from "./util/mutationObserver";
 
-export async function ttProductHuntReply(): Promise<void> {
+export async function ttProductHuntInit(): Promise<void> {
+  execObserver(async () => {
+    await ttProductHuntReply();
+  });
+}
+
+async function ttProductHuntReply(): Promise<void> {
   const formWrapper = document.querySelector(
     "main form[data-test=comment-form]",
   );

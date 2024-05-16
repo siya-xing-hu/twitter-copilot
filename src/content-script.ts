@@ -1,16 +1,16 @@
 import "./popup.css";
 import { retry } from "./utils/common";
 import { execTranslate } from "./components/translate";
-import { ttProductHuntReply } from "./components/_producthunt";
-import { ttTwitterPost, ttTwitterReply } from "./components/_twitter";
+import { ttProductHuntInit } from "./components/_producthunt";
+import { ttTwitterInit } from "./components/_twitter";
 
 chrome.runtime.onMessage.addListener((request, _sender) => {
+  console.log("content-script.ts: onMessage", request);
   if (request.type === "twitter-url") {
-    retry(ttTwitterPost, 1, 15);
-    retry(ttTwitterReply, 1, 15);
+    retry(ttTwitterInit, 1, 15);
   }
   if (request.type === "producthunt-url") {
-    retry(ttProductHuntReply, 1, 15);
+    retry(ttProductHuntInit, 1, 15);
   }
 });
 

@@ -179,7 +179,10 @@ export async function init(): Promise<void> {
   // 监听标签页激活事件
   chrome.tabs.onActivated.addListener(({ tabId }) => {
     chrome.tabs.get(tabId, (tab) => {
-      sendMessageToContentScript(tabId, tab.url);
+      // 检测标签页加载完毕
+      if (tab && tab.status === "complete") {
+        sendMessageToContentScript(tabId, tab.url);
+      }
     });
   });
 
