@@ -2,7 +2,7 @@
   <div id="tt-post-buttons">
     <!-- 遍历按钮列表 -->
     <button v-for="button in buttonList" :key="button.tag" :id="button.tag" class=""
-      @click="button.handler(button.params)">
+      @click="button.handler(button.tag, button.params)">
       {{ button.text }}
     </button>
   </div>

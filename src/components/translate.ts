@@ -1,4 +1,4 @@
-import { MessageData } from "../utils/common";
+import { MessageData, randomString } from "../utils/common";
 import { createApp } from "vue";
 import Translate from "./Translate.vue";
 
@@ -9,6 +9,26 @@ interface TranslateData {
 }
 
 const translateDataList: TranslateData[] = [];
+
+async function translateContent(text: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const messageData: MessageData = {
+      type: "translate",
+      payload: {
+        data: {
+          text,
+          locale: "auto",
+        },
+      },
+    };
+
+    chrome.runtime?.id &&
+      chrome.runtime.sendMessage(messageData, (resp: MessageData) => {
+        const result = resp?.payload?.data;
+        resolve(result);
+      });
+  });
+}
 
 export async function execTranslate(
   clientX: number,
@@ -101,8 +121,8 @@ function findNearestDivAndText(
       element;
       element = element.parentElement
     ) {
-      // 如果是 div 元素、 H 元素、p 元素、span 元素
-      if (element.tagName === "DIV") {
+      // 如果是 div 元素、 H 元素
+      if (element.tagName === "DIV" || element.tagName.match(/H\d/)) {
         targetDiv = element as HTMLElement;
         break;
       }
@@ -112,33 +132,13 @@ function findNearestDivAndText(
   return targetDiv;
 }
 
-export async function translateContent(text: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const messageData: MessageData = {
-      type: "translate",
-      payload: {
-        data: {
-          text,
-          locale: "auto",
-        },
-      },
-    };
-
-    chrome.runtime?.id &&
-      chrome.runtime.sendMessage(messageData, (resp: MessageData) => {
-        const result = resp?.payload?.data;
-        resolve(result);
-      });
-  });
-}
-
 function createContainer(
   targetDiv: HTMLElement,
   translateData: TranslateData,
 ): void {
-  // 生成一个随机数
   if (!translateData.id) {
-    translateData.id = Math.random().toString(36);
+    // 生成一个 uuid
+    translateData.id = randomString(10);
     translateDataList.push(translateData);
   }
 

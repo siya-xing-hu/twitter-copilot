@@ -9,7 +9,7 @@ export interface ButtonData {
   tag: string;
   text: string;
   params: HandlerParams;
-  handler: (params: HandlerParams) => void | Promise<void>;
+  handler: (tag: string, params: HandlerParams) => void | Promise<void>;
 }
 
 export enum ButtonLocationEnum {
@@ -43,6 +43,17 @@ export function createButtonContainer(
         parentElement.insertBefore(div, targetWrapper);
       } else {
         targetWrapper.appendChild(div);
+      }
+      break;
+    case ButtonLocationEnum.Next:
+      // 获取 tweetWrapper 的下一个兄弟元素
+      const nextElement = targetWrapper.nextElementSibling;
+      // 确保存在下一个兄弟元素
+      if (nextElement) {
+        // 将新创建的容器添加到下一个兄弟元素之前
+        targetWrapper.parentElement?.insertBefore(div, nextElement);
+      } else {
+        targetWrapper.parentElement?.appendChild(div);
       }
       break;
     default:

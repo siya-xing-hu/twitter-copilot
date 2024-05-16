@@ -1,55 +1,20 @@
+import { generateContent } from "./util/sendBackground";
 import {
   ButtonData,
   ButtonLocationEnum,
   createButtonContainer,
   HandlerParams,
 } from "./button";
-
-// export async function ttMainInit(): Promise<void> {
-//   const $formWrapper = document.querySelector(
-//     "main form[data-test=comment-form]",
-//   );
-
-//   if (!$formWrapper) {
-//     throw new Error("main is not loaded");
-//   }
-
-//   // 添加翻译按钮响应事件
-//   if ($toolBarParentWrapper.getAttribute("tt-button-is-done") === "true") {
-//     return;
-//   }
-
-//   const buttonList: ButtonData[] = [
-//     {
-//       tag: "Create",
-//       text: "✨ Create",
-//       handler: () => {
-//         console.log("Create");
-//       },
-//     },
-//     {
-//       tag: "Polish",
-//       text: "🍭 Polish",
-//       handler: () => {
-//         console.log("Polish");
-//       },
-//     },
-//   ];
-
-//   createButtonContainer($toolBarParentWrapper, buttonList);
-// }
+import { createDialogContainer } from "./dialog";
 
 export async function ttProductHuntReply(): Promise<void> {
   const formWrapper = document.querySelector(
     "main form[data-test=comment-form]",
   );
-
   const submitButtonWrapper = formWrapper?.querySelector(
     "button[data-test=form-submit-button]",
   ) as HTMLElement | null;
-
   if (!formWrapper || !submitButtonWrapper) {
-    console.error("form is not loaded");
     return;
   }
 
@@ -61,52 +26,54 @@ export async function ttProductHuntReply(): Promise<void> {
   if (targetWrapper.getAttribute("tt-button-is-done") === "true") {
     return;
   }
+  const textareaWrapper = targetWrapper.parentElement?.querySelector(
+    "textarea",
+  );
 
   const buttonList: ButtonData[] = [
     {
-      tag: "Create",
-      text: "✨ Create",
-      params: { data: targetWrapper },
-      handler: replyHandle,
-    },
-    {
-      tag: "Polish",
-      text: "🍭 Polish",
-      params: { data: targetWrapper },
+      tag: "Translate",
+      text: "✨ Translate",
+      params: { data: { textareaWrapper } },
       handler: replyHandle,
     },
   ];
 
-  createButtonContainer(targetWrapper, ButtonLocationEnum.Previous, buttonList);
-
-  // // 添加内容生成按钮
-  // const $xersButtons = createElement(
-  //   $replayTweetTextWrapper ? template.replyButtons : template.postButtons,
-  // );
-
-  // if ($toolBarParentWrapper.firstChild) {
-  //   $toolBarParentWrapper.insertBefore(
-  //     $xersButtons.cloneNode(true),
-  //     $toolBarParentWrapper.firstChild,
-  //   );
-  // } else {
-  //   $toolBarParentWrapper.appendChild($xersButtons.cloneNode(true));
-  // }
-  // $toolBarParentWrapper.setAttribute("xers-button-is-done", "true");
-
-  // if ($replayTweetTextWrapper) {
-  //   // reply
-  //   return await reply(
-  //     $toolBarParentWrapper,
-  //     $tweetTextareaWrapper,
-  //     $replayTweetTextWrapper,
-  //   );
-  // } else {
-  //   // post
-  //   return await post($toolBarParentWrapper, $tweetTextareaWrapper);
-  // }
+  createButtonContainer(
+    formWrapper as HTMLElement,
+    ButtonLocationEnum.Next,
+    buttonList,
+  );
 }
 
-async function replyHandle(data: HandlerParams): Promise<void> {
-  console.log("replyHandle", data);
+async function replyHandle(tag: string, params: HandlerParams): Promise<void> {
+  console.log("tag: ", tag, "replyHandle: ", params);
+  const { textareaWrapper } = params.data;
+
+  if (!textareaWrapper || textareaWrapper.textContent == "") {
+    return;
+  }
+
+  const generateText = await generateContent(
+    textareaWrapper.textContent,
+    tag,
+    "ai-post",
+  );
+
+  createDialogContainer(
+    generateText,
+    () => {
+      textareaWrapper.value = generateText;
+      // 触发 input 事件以通知浏览器内容已更新
+      const inputEvent = new Event("input", {
+        bubbles: true,
+        cancelable: true,
+      });
+      textareaWrapper.dispatchEvent(inputEvent);
+    },
+    () => {
+      // 取消按钮的回调
+      console.log("Operation cancelled.");
+    },
+  );
 }

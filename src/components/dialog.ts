@@ -1,18 +1,18 @@
-import { createApp } from "vue";
+import { createApp, h } from "vue";
 import Dialog from "./Dialog.vue";
 
 // 创建和显示弹框
-function createContainer(
+export function createDialogContainer(
   text: string,
   onConfirm: () => void,
   onCancel: () => void,
 ): void {
   const dialogContainer = document.createElement("div");
-  document.body.appendChild(dialogContainer);
+  dialogContainer.setAttribute("id", "dialog-container");
 
   const app = createApp({
     render() {
-      return createApp(Dialog, {
+      return h(Dialog, {
         text,
         onConfirm: () => {
           onConfirm();
@@ -28,4 +28,6 @@ function createContainer(
     },
   });
   app.mount(dialogContainer);
+
+  document.body.appendChild(dialogContainer);
 }
