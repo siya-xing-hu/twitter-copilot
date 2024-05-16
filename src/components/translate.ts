@@ -2,25 +2,13 @@ import { MessageData } from "../utils/common";
 import { createApp } from "vue";
 import Translate from "./Translate.vue";
 
-export async function translateContent(text: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const messageData: MessageData = {
-      type: "translate",
-      payload: {
-        data: {
-          text,
-          locale: "auto",
-        },
-      },
-    };
-
-    chrome.runtime?.id &&
-      chrome.runtime.sendMessage(messageData, (resp: MessageData) => {
-        const result = resp?.payload?.data;
-        resolve(result);
-      });
-  });
+interface TranslateData {
+  id?: string;
+  text: string;
+  show: boolean;
 }
+
+const translateDataList: TranslateData[] = [];
 
 export async function execTranslate(
   clientX: number,
@@ -30,29 +18,51 @@ export async function execTranslate(
 
   if (targetDiv) {
     // 如果是翻译元素，直接隐藏翻译元素 text-is-translate-text
-    if (targetDiv.getAttribute("text-is-translate-text") === "true") {
-      if (targetDiv.style.display === "none") {
-        targetDiv.style.display = "block";
-      } else {
-        targetDiv.style.display = "none";
+    if (targetDiv.getAttribute("text-is-translate-text")) {
+      const translateId = targetDiv.getAttribute("text-is-translate-text");
+      const translateData = translateDataList.find(
+        (item) => item.id === translateId,
+      );
+      if (translateData) {
+        if (translateData.show) {
+          translateData.show = false;
+          // 直接删除当前的 targetDiv
+          targetDiv.remove();
+        } else {
+          translateData.show = true;
+          // 显示翻译元素
+          createContainer(targetDiv, {
+            id: translateData.id,
+            text: translateData.text,
+            show: true,
+          });
+        }
       }
       return;
     }
 
     // 判断是否已经翻译
-    if (targetDiv.getAttribute("text-is-translated") === "true") {
-      // 隐藏
-      // 获取 targetDiv 的兄弟元素中的下一个元素
-      const nextElement = targetDiv.nextSibling;
-      if (nextElement) {
-        // 隐藏 or 显示
-        const translateDiv = nextElement as HTMLElement;
-        if (translateDiv.getAttribute("text-is-translate-text") === "true") {
-          if (translateDiv.style.display === "none") {
-            translateDiv.style.display = "block";
-          } else {
-            translateDiv.style.display = "none";
-          }
+    if (targetDiv.getAttribute("text-is-translated")) {
+      const translateId = targetDiv.getAttribute("text-is-translated");
+      const translateData = translateDataList.find(
+        (item) => item.id === translateId,
+      );
+      if (translateData) {
+        if (translateData.show) {
+          translateData.show = false;
+          // 删除翻译元素
+          const translateElement = document.querySelector(
+            `[text-is-translate-text="${translateId}"]`,
+          );
+          translateElement && translateElement.remove();
+        } else {
+          translateData.show = true;
+          // 显示翻译元素
+          createContainer(targetDiv, {
+            id: translateData.id,
+            text: translateData.text,
+            show: true,
+          });
         }
       }
     } else {
@@ -64,7 +74,10 @@ export async function execTranslate(
           console.log("No translated text.");
           return;
         }
-        createContainer(targetDiv, translatedText);
+        createContainer(targetDiv, {
+          text: translatedText,
+          show: true,
+        });
       }
     }
   }
@@ -99,17 +112,43 @@ function findNearestDivAndText(
   return targetDiv;
 }
 
+export async function translateContent(text: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const messageData: MessageData = {
+      type: "translate",
+      payload: {
+        data: {
+          text,
+          locale: "auto",
+        },
+      },
+    };
+
+    chrome.runtime?.id &&
+      chrome.runtime.sendMessage(messageData, (resp: MessageData) => {
+        const result = resp?.payload?.data;
+        resolve(result);
+      });
+  });
+}
+
 function createContainer(
   targetDiv: HTMLElement,
-  translatedText: string,
+  translateData: TranslateData,
 ): void {
+  // 生成一个随机数
+  if (!translateData.id) {
+    translateData.id = Math.random().toString(36);
+    translateDataList.push(translateData);
+  }
+
   const div = document.createElement("div");
 
-  div.setAttribute("text-is-translate-text", "true");
+  div.setAttribute("text-is-translate-text", translateData.id);
   div.style.textOverflow = "unset";
 
   const app = createApp(Translate, {
-    translatedText,
+    translatedText: translateData.text,
   });
   app.mount(div);
 
@@ -122,5 +161,5 @@ function createContainer(
   } else {
     targetDiv.appendChild(div);
   }
-  targetDiv.setAttribute("text-is-translated", "true");
+  targetDiv.setAttribute("text-is-translated", translateData.id);
 }

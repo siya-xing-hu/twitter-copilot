@@ -272,7 +272,7 @@ async function xersMainInit(): Promise<boolean> {
   )?.parentElement;
 
   if (!$toolBarParentWrapper || !$tweetTextareaWrapper) {
-    throw new Error("main is not loaded");
+    return false;
   }
 
   // 添加翻译按钮响应事件
@@ -323,6 +323,7 @@ document.addEventListener("keydown", async (event) => {
       return;
     }
     try {
+      isTranslating = true;
       await execTranslate(currentClientX, currentClientY);
     } catch (error) {
       console.error(error);
