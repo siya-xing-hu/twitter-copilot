@@ -1,4 +1,4 @@
-import { setInputText } from "../utils/common";
+import { ButtonTag, MessageType, setInputText } from "../utils/common";
 import { generateContent } from "./util/sendBackground";
 import {
   ButtonData,
@@ -36,19 +36,16 @@ async function ttTwitterPost(): Promise<void> {
     return;
   }
 
-  // "✨ Create": "根据内容摘要丰富内容",
-  //       "🍭 Polish": "根据内容进行优化排版，纠错",
-
   const buttonList: ButtonData[] = [
     {
-      tag: "Create",
-      text: "✨ Create",
+      tag: ButtonTag.Generate,
+      text: "✨ Generate",
       params: { data: { tweetTextareaWrapper } },
       handler: generateHandle,
     },
     {
-      tag: "Polish",
-      text: "🍭 Polish",
+      tag: ButtonTag.Translate,
+      text: "🌎 Translate",
       params: { data: { tweetTextareaWrapper } },
       handler: generateHandle,
     },
@@ -89,75 +86,62 @@ async function ttTwitterReply(): Promise<void> {
     if (replayContent === "") {
       return;
     }
-
-    // "👍": "Express approval",
-    //       "👎": "Express disapproval",
-    //       "🫶 Support": "Express support",
-    //       "🔥 Joke": "Humor style",
-    //       "💡 Idea": "Give a good opinion",
-    //       "❓ Question": "Ask a question",
-    //       "◑ Translate": "Translate",
-
     buttonList.push(
       {
-        tag: "approval",
-        text: "👍",
+        tag: ButtonTag.Approval,
+        text: "👍 Approval",
         params: { data: { tweetTextareaWrapper, replayContent } },
         handler: generateHandle,
       },
       {
-        tag: "disapproval",
-        text: "👎",
+        tag: ButtonTag.Disapproval,
+        text: "👎 Disapproval",
         params: { data: { tweetTextareaWrapper, replayContent } },
         handler: generateHandle,
       },
       {
-        tag: "Support",
+        tag: ButtonTag.Support,
         text: "🫶 Support",
         params: { data: { tweetTextareaWrapper, replayContent } },
         handler: generateHandle,
       },
       {
-        tag: "Joke",
+        tag: ButtonTag.Joke,
         text: "🔥 Joke",
         params: { data: { tweetTextareaWrapper, replayContent } },
         handler: generateHandle,
       },
       {
-        tag: "Idea",
+        tag: ButtonTag.Idea,
         text: "💡 Idea",
         params: { data: { tweetTextareaWrapper, replayContent } },
         handler: generateHandle,
       },
       {
-        tag: "Question",
+        tag: ButtonTag.Question,
         text: "❓ Question",
         params: { data: { tweetTextareaWrapper, replayContent } },
         handler: generateHandle,
       },
       {
-        tag: "Translate",
-        text: "◑ Translate",
+        tag: ButtonTag.Translate,
+        text: "🌎 Translate",
         params: { data: { tweetTextareaWrapper } },
         handler: generateHandle,
       },
     );
   } else {
     // post
-
-    // "✨ Create": "根据内容摘要丰富内容",
-    //       "🍭 Polish": "根据内容进行优化排版，纠错",
-
     buttonList.push(
       {
-        tag: "Create",
-        text: "✨ Create",
+        tag: ButtonTag.Generate,
+        text: "✨ Generate",
         params: { data: { tweetTextareaWrapper } },
         handler: generateHandle,
       },
       {
-        tag: "Polish",
-        text: "🍭 Polish",
+        tag: ButtonTag.Translate,
+        text: "🌎 Translate",
         params: { data: { tweetTextareaWrapper } },
         handler: generateHandle,
       },
@@ -172,25 +156,25 @@ async function ttTwitterReply(): Promise<void> {
 }
 
 async function generateHandle(
-  tag: string,
+  tag: ButtonTag,
   params: HandlerParams,
 ): Promise<void> {
-  console.log("tag: ", tag, "postHandle: ", params);
   const { tweetTextareaWrapper, replayContent } = params.data;
   if (!tweetTextareaWrapper) {
     return;
   }
 
-  let sourceContent = replayContent || tweetTextareaWrapper.textContent || "";
   let needDialog = false;
-  let type = "ai-reply";
-  if (["Create", "Polish", "Translate"].includes(tag)) {
-    console.log("tag: ", tag);
-    type = "ai-post";
+  if ([ButtonTag.Generate, ButtonTag.Translate].includes(tag)) {
     needDialog = true;
   }
 
-  const generateText = await generateContent(sourceContent, tag, type);
+  let sourceContent = replayContent || tweetTextareaWrapper.textContent || "";
+  const generateText = await generateContent(
+    sourceContent,
+    tag,
+    MessageType.AIGenerate,
+  );
 
   if (needDialog) {
     createDialogContainer(

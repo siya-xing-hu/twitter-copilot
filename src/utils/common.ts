@@ -86,7 +86,7 @@ export function setInputText(inputEl: HTMLElement | null, text: string): void {
 
 // 定义消息的类型
 export interface MessageData {
-  type: string;
+  type: MessageType;
   payload: {
     data: any;
   };
@@ -98,4 +98,21 @@ export interface ResponseData {
   payload: {
     data: any;
   };
+}
+
+export enum MessageType {
+  Translate = "translate",
+  ConfigUpdate = "config-update",
+  AIGenerate = "ai-genarate",
+}
+
+export enum ButtonTag {
+  Translate = "translate",
+  Generate = "generate",
+  Approval = "approval",
+  Disapproval = "disapproval",
+  Support = "support",
+  Joke = "joke",
+  Idea = "idea",
+  Question = "question",
 }

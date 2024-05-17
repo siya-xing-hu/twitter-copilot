@@ -7,6 +7,7 @@ import {
 } from "./button";
 import { createDialogContainer } from "./dialog";
 import { execObserver } from "./util/mutationObserver";
+import { ButtonTag, MessageType } from "../utils/common";
 
 export async function ttProductHuntInit(): Promise<void> {
   execObserver(async () => {
@@ -39,8 +40,8 @@ async function ttProductHuntReply(): Promise<void> {
 
   const buttonList: ButtonData[] = [
     {
-      tag: "Translate",
-      text: "✨ Translate",
+      tag: ButtonTag.Translate,
+      text: "🌎 Translate",
       params: { data: { textareaWrapper } },
       handler: replyHandle,
     },
@@ -53,8 +54,10 @@ async function ttProductHuntReply(): Promise<void> {
   );
 }
 
-async function replyHandle(tag: string, params: HandlerParams): Promise<void> {
-  console.log("tag: ", tag, "replyHandle: ", params);
+async function replyHandle(
+  tag: ButtonTag,
+  params: HandlerParams,
+): Promise<void> {
   const { textareaWrapper } = params.data;
 
   if (!textareaWrapper || textareaWrapper.textContent == "") {
@@ -64,7 +67,7 @@ async function replyHandle(tag: string, params: HandlerParams): Promise<void> {
   const generateText = await generateContent(
     textareaWrapper.textContent,
     tag,
-    "ai-post",
+    MessageType.AIGenerate,
   );
 
   createDialogContainer(

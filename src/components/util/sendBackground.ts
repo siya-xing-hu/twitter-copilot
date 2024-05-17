@@ -1,19 +1,14 @@
-import { MessageData } from "../../utils/common";
+import { ButtonTag, MessageData, MessageType } from "../../utils/common";
 
 export async function generateContent(
-  text: string,
-  optionTag: string,
-  type: string,
+  content: string,
+  tag: ButtonTag,
+  type: MessageType,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const messageData: MessageData = {
       type,
-      payload: {
-        data: {
-          optionTag,
-          userTweetText: text,
-        },
-      },
+      payload: { data: { tag, content } },
     };
 
     chrome.runtime?.id &&

@@ -1,15 +1,16 @@
 import { createApp } from "vue";
 import Button from "./Button.vue";
+import { ButtonTag } from "../utils/common";
 
 export interface HandlerParams {
   data: any;
 }
 
 export interface ButtonData {
-  tag: string;
+  tag: ButtonTag;
   text: string;
   params: HandlerParams;
-  handler: (tag: string, params: HandlerParams) => void | Promise<void>;
+  handler: (tag: ButtonTag, params: HandlerParams) => void | Promise<void>;
 }
 
 export enum ButtonLocationEnum {
