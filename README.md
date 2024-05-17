@@ -4,7 +4,8 @@
 
 Twitter tools for translation and AI content generation
 
-将鼠标放置在“内容”区域，通过 Shift 键显示翻译和原文（任何网站）
+Place the mouse over the "Content" area and display the translation and original text with the Ctrl key 
+(any website)
 
 ## Setup
 
