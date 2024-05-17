@@ -3,9 +3,19 @@ import { retry } from "./utils/common";
 import { execTranslate } from "./components/translate";
 import { ttProductHuntInit } from "./components/_producthunt";
 import { ttTwitterInit } from "./components/_twitter";
+import config from "./constants/config";
+
+chrome.storage.local.get().then(({ xTranslate }) => {
+  config.xTranslate = xTranslate;
+});
 
 chrome.runtime.onMessage.addListener((request, _sender) => {
   console.log("content-script.ts: onMessage", request);
+  if (request.type === "config-update") {
+    chrome.storage.local.get().then(({ xTranslate }) => {
+      config.xTranslate = xTranslate;
+    });
+  }
   if (request.type === "twitter-url") {
     retry(ttTwitterInit, 1, 15);
   }

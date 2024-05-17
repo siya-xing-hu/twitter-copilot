@@ -1,7 +1,7 @@
 import { debounce } from "./utils/common";
 
 export async function init(fields: any[]) {
-  const { openaiApiKey, openaiOrganization, openaiChatModel } =
+  const { openaiApiKey, openaiOrganization, openaiChatModel, xTranslate } =
     (await chrome.storage.local.get()) ?? {};
   fields.forEach((field) => {
     switch (field.name) {
@@ -13,6 +13,9 @@ export async function init(fields: any[]) {
         break;
       case "openaiChatModel":
         field.value = openaiChatModel ?? "";
+        break;
+      case "xTranslate":
+        field.value = xTranslate ?? "";
         break;
       default:
         break;
@@ -30,6 +33,9 @@ export const onInput = debounce(async (fieldName: string, value: string) => {
       break;
     case "openaiChatModel":
       chrome.storage.local.set({ openaiChatModel: value });
+      break;
+    case "xTranslate":
+      chrome.storage.local.set({ xTranslate: value });
       break;
     default:
       break;

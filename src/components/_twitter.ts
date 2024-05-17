@@ -8,11 +8,17 @@ import {
 } from "./button";
 import { createDialogContainer } from "./dialog";
 import { execObserver } from "./util/mutationObserver";
+import { translateContent } from "./translate";
+import config from "../constants/config";
 
 export async function ttTwitterInit(): Promise<void> {
   execObserver(async () => {
     await ttTwitterPost();
     await ttTwitterReply();
+
+    if (config.xTranslate == "TRUE") {
+      await ttTwitterTranslate();
+    }
   });
 }
 
@@ -191,4 +197,48 @@ async function generateHandle(
   } else {
     setInputText(tweetTextareaWrapper, generateText);
   }
+}
+
+async function ttTwitterTranslate(): Promise<void> {
+  const mainWrapper = document.querySelector(
+    "main[role=main] div[data-testid=primaryColumn]",
+  );
+  const ariaLabelWrapper = mainWrapper?.querySelector(
+    "section[role=region] div[aria-label]",
+  ) as HTMLElement | null;
+  if (!ariaLabelWrapper) {
+    return;
+  }
+
+  let tweetWrapperList = [
+    ...ariaLabelWrapper.querySelectorAll(
+      `div[aria-label] article[role=article]:not([tabindex="-1"]) div[lang]:not([data-has-translator=true]):not([lang^=zh])`,
+    ),
+  ];
+
+  if (!tweetWrapperList.length) return;
+
+  tweetWrapperList.forEach((tweetWrapper) => {
+    tweetWrapper.setAttribute("data-has-translator", "true");
+
+    // 获取 tweetWrapper 子节点的所有 span 元素
+    const spanContentWrapper = [...tweetWrapper.querySelectorAll("span")];
+
+    // 将 span 元素遍历，过滤出非表情的文本元素，将文本内容依次替换成 “你好”
+    spanContentWrapper.forEach((span) => {
+      // 如果 span 元素还有子节点，过滤
+      const textContent = span.textContent;
+      if (
+        !textContent || textContent.startsWith("http") ||
+        textContent.startsWith("https") || textContent.startsWith("@") ||
+        textContent.startsWith("#")
+      ) {
+        return;
+      }
+      // 翻译
+      translateContent(textContent).then((translatedText) => {
+        span.textContent = translatedText || textContent;
+      });
+    });
+  });
 }

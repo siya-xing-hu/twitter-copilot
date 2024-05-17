@@ -1,4 +1,4 @@
-import { MessageData, randomString } from "../utils/common";
+import { MessageData, MessageType, randomString } from "../utils/common";
 import { createApp } from "vue";
 import Translate from "./Translate.vue";
 
@@ -10,10 +10,10 @@ interface TranslateData {
 
 const translateDataList: TranslateData[] = [];
 
-async function translateContent(text: string): Promise<string> {
+export async function translateContent(text: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const messageData: MessageData = {
-      type: "translate",
+      type: MessageType.Translate,
       payload: {
         data: {
           text,

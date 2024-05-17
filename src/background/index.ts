@@ -1,6 +1,5 @@
 import config from "../constants/config";
 import { MessageData, MessageType, ResponseData, retry } from "../utils/common";
-import { openaiCreate } from "../utils/openai";
 import { translate } from "../utils/translate";
 import { execGptPrompt } from "./gptPrompt";
 import { addTabListener } from "./listener";
@@ -64,7 +63,16 @@ export async function init(): Promise<void> {
             tabs.forEach((tab) => {
               if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
                 chrome.tabs.sendMessage(tab.id, {
-                  type: "twitter-url",
+                  type: "config-update",
+                });
+              }
+            });
+          });
+          chrome.tabs.query({ url: "*://*.x.com/*" }, (tabs) => {
+            tabs.forEach((tab) => {
+              if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
+                chrome.tabs.sendMessage(tab.id, {
+                  type: "config-update",
                 });
               }
             });

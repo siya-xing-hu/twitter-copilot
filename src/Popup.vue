@@ -5,14 +5,26 @@
       <div v-for="field in fields" :key="field.name">
         <label :for="field.name" class="block text-sm font-semibold mb-2">
           {{ field.label }}
-          <select v-if="field.type === 'select'" v-model="field.value"
-            class="w-full mt-2 bg-gray-200 border-none rounded p-2 pr-10 text-sm text-gray-600">
+          <select
+            v-if="field.type === 'select'"
+            v-model="field.value"
+            class="w-full mt-2 bg-gray-200 border-none rounded p-2 pr-10 text-sm text-gray-600"
+          >
             <!-- Assuming field.options is an array of options for the dropdown -->
-            <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}
+            <option
+              v-for="option in field.options"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
             </option>
           </select>
-          <input v-else :type="field.type" v-model="field.value"
-            class="w-full mt-2 bg-gray-200 border-none rounded p-2 pr-10 text-sm text-gray-600" />
+          <input
+            v-else
+            :type="field.type"
+            v-model="field.value"
+            class="w-full mt-2 bg-gray-200 border-none rounded p-2 pr-10 text-sm text-gray-600"
+          />
           <div v-if="field.isLoading" class="loader"></div>
           <div v-if="field.isSuccess" class="check-icon">
             <span class="icon-line line-tip"></span>
@@ -25,40 +37,75 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from 'vue';
-import { init, onInput } from './translator-config';
+import { defineComponent, onMounted, ref, watch } from "vue";
+import { init, onInput } from "./translator-config";
 
 export default defineComponent({
-  name: 'Popup',
+  name: "Popup",
   setup() {
     const fields = ref([
-      { label: 'OPENAI_API_KEY', name: 'openaiApiKey', type: 'password', value: '', isLoading: false, isSuccess: false },
-      { label: 'OPENAI_ORGANIZATION', name: 'openaiOrganization', type: 'password', value: '', isLoading: false, isSuccess: false },
       {
-        label: 'OPENAI_CHAT_MODEL', name: 'openaiChatModel', type: 'select', value: '', isLoading: false, isSuccess: false, options: [
-          { value: 'gpt-3.5-turbo', label: 'gpt-3.5', select: true },
-          { value: 'gpt-4-turbo', label: 'gpt-4.0' },
-        ]
-      }
+        label: "OPENAI_API_KEY",
+        name: "openaiApiKey",
+        type: "password",
+        value: "",
+        isLoading: false,
+        isSuccess: false,
+      },
+      {
+        label: "OPENAI_ORGANIZATION",
+        name: "openaiOrganization",
+        type: "password",
+        value: "",
+        isLoading: false,
+        isSuccess: false,
+      },
+      {
+        label: "OPENAI_CHAT_MODEL",
+        name: "openaiChatModel",
+        type: "select",
+        value: "",
+        isLoading: false,
+        isSuccess: false,
+        options: [
+          { value: "gpt-3.5-turbo", label: "gpt-3.5", select: true },
+          { value: "gpt-4-turbo", label: "gpt-4.0" },
+        ],
+      },
+      {
+        label: "X_TRANSLATE",
+        name: "xTranslate",
+        type: "select",
+        value: "",
+        isLoading: false,
+        isSuccess: false,
+        options: [
+          { value: "TRUE", label: "TRUE", select: true },
+          { value: "FALSE", label: "FALSE" },
+        ],
+      },
     ]);
 
     onMounted(async () => {
       await init(fields.value);
 
       fields.value.forEach((field) => {
-        watch(() => field.value, (value) => {
-          field.isLoading = true;
-          field.isSuccess = false;
-          onInput(field.name, value);
-          setTimeout(() => {
-            field.isLoading = false;
-            field.isSuccess = true;
-          }, 1000);
-          setTimeout(() => {
-            field.isLoading = false;
+        watch(
+          () => field.value,
+          (value) => {
+            field.isLoading = true;
             field.isSuccess = false;
-          }, 3000);
-        });
+            onInput(field.name, value);
+            setTimeout(() => {
+              field.isLoading = false;
+              field.isSuccess = true;
+            }, 1000);
+            setTimeout(() => {
+              field.isLoading = false;
+              field.isSuccess = false;
+            }, 3000);
+          }
+        );
       });
     });
 
@@ -68,7 +115,6 @@ export default defineComponent({
   },
 });
 </script>
-
 
 <style>
 .loader {
