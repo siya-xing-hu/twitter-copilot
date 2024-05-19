@@ -9,14 +9,17 @@ import {
 import { createDialogContainer } from "./dialog";
 import { execObserver } from "./util/mutationObserver";
 import { translateContent } from "./translate";
-import config from "../constants/config";
+
+export const translateConfig = {
+  xTranslate: false,
+};
 
 export async function ttTwitterInit(): Promise<void> {
   execObserver(async () => {
     await ttTwitterPost();
     await ttTwitterReply();
 
-    if (config.xTranslate == "TRUE") {
+    if (translateConfig.xTranslate) {
       await ttTwitterTranslate();
     }
   });

@@ -29,7 +29,7 @@
 
 <script lang="ts" setup>
 import { watch, onMounted } from "vue";
-import { initConfig, onInput, fields } from "./config/api-config";
+import { initConfig, onInput, fields } from "./popup-config";
 
 onMounted(async () => {
   await initConfig();
@@ -56,4 +56,4 @@ onMounted(async () => {
 </script>
 
 <style></style>
-./config/translator-config
+./config/translator-config./config/web-config

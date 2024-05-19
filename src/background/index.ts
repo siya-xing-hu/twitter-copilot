@@ -1,33 +1,11 @@
-import config from "../constants/config";
+import { initOpenAI } from "../config/openai-config";
 import { MessageData, MessageType, ResponseData, retry } from "../utils/common";
 import { translate } from "../utils/translate";
 import { execGptPrompt } from "./gptPrompt";
 import { addTabListener } from "./listener";
 
-const { googleTranslatorAPI } = config;
-
-interface Config {
-  openaiApiKey?: string;
-  openaiOrganization?: string;
-  openaiChatModel: string;
-}
-
-declare global {
-  var config: Config;
-}
-
-async function initConfig() {
-  const { openaiApiKey, openaiOrganization, openaiChatModel } =
-    (await chrome.storage.local.get()) ?? {};
-  globalThis.config = {
-    openaiApiKey,
-    openaiOrganization,
-    openaiChatModel: openaiChatModel ? openaiChatModel : "gpt-3.5-turbo",
-  };
-}
-
 export async function init(): Promise<void> {
-  await initConfig();
+  await initOpenAI();
 
   chrome.runtime.onMessage.addListener(
     (
@@ -43,7 +21,7 @@ export async function init(): Promise<void> {
           retry(
             async () => {
               return Promise.resolve(
-                await translate(googleTranslatorAPI, text, locale),
+                await translate(text, locale),
               );
             },
             1,
@@ -58,23 +36,24 @@ export async function init(): Promise<void> {
           });
           break;
         case MessageType.ConfigUpdate:
-          initConfig();
-          chrome.tabs.query({ url: "*://*.twitter.com/*" }, (tabs) => {
-            tabs.forEach((tab) => {
-              if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
-                chrome.tabs.sendMessage(tab.id, {
-                  type: "config-update",
-                });
-              }
+          initOpenAI().then(() => {
+            chrome.tabs.query({ url: "*://*.twitter.com/*" }, (tabs) => {
+              tabs.forEach((tab) => {
+                if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
+                  chrome.tabs.sendMessage(tab.id, {
+                    type: "config-update",
+                  });
+                }
+              });
             });
-          });
-          chrome.tabs.query({ url: "*://*.x.com/*" }, (tabs) => {
-            tabs.forEach((tab) => {
-              if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
-                chrome.tabs.sendMessage(tab.id, {
-                  type: "config-update",
-                });
-              }
+            chrome.tabs.query({ url: "*://*.x.com/*" }, (tabs) => {
+              tabs.forEach((tab) => {
+                if (typeof tab.id === "number") { // 确保 tab.id 是一个数字
+                  chrome.tabs.sendMessage(tab.id, {
+                    type: "config-update",
+                  });
+                }
+              });
             });
           });
           break;

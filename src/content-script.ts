@@ -2,18 +2,17 @@ import "./popup.css";
 import { retry } from "./utils/common";
 import { execTranslate } from "./components/translate";
 import { ttProductHuntInit } from "./components/_producthunt";
-import { ttTwitterInit } from "./components/_twitter";
-import config from "./constants/config";
+import { translateConfig, ttTwitterInit } from "./components/_twitter";
 
 chrome.storage.local.get().then(({ xTranslate }) => {
-  config.xTranslate = xTranslate;
+  translateConfig.xTranslate = xTranslate == "TRUE";
 });
 
 chrome.runtime.onMessage.addListener((request, _sender) => {
   console.log("content-script.ts: onMessage", request);
   if (request.type === "config-update") {
     chrome.storage.local.get().then(({ xTranslate }) => {
-      config.xTranslate = xTranslate;
+      translateConfig.xTranslate = xTranslate == "TRUE";
     });
   }
   if (request.type === "twitter-url") {

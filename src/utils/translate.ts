@@ -1,7 +1,7 @@
 import { stringifyQueryParameter } from "./common";
+import googleTranslatorAPI from "../config/translate-config";
 
 export async function translate(
-  googleTranslatorAPI: string,
   text: string,
   locale: string,
 ): Promise<any> {

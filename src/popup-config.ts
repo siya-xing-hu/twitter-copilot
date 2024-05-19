@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { debounce } from "../utils/common";
+import { debounce } from "./utils/common";
 
 export const fields = ref([
   {
