@@ -7,6 +7,7 @@ export interface HandlerParams {
 }
 
 export interface ButtonData {
+  disabled: boolean;
   tag: ButtonTag;
   text: string;
   params: HandlerParams;

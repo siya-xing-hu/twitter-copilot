@@ -40,6 +40,7 @@ async function ttProductHuntReply(): Promise<void> {
 
   const buttonList: ButtonData[] = [
     {
+      disabled: false,
       tag: ButtonTag.Translate,
       text: "🌎 Translate",
       params: { data: { textareaWrapper } },

@@ -31,7 +31,7 @@ async function ttTwitterPost(): Promise<void> {
   );
   const tweetTextareaWrapper = mainWrapper?.querySelector(
     "div[data-testid=tweetTextarea_0]",
-  ) as HTMLElement | null;
+  ) as HTMLElement;
   const toolBarParentWrapper = mainWrapper?.querySelector(
     "div[data-testid=toolBar]",
   );
@@ -47,15 +47,17 @@ async function ttTwitterPost(): Promise<void> {
 
   const buttonList: ButtonData[] = [
     {
+      disabled: false,
       tag: ButtonTag.Generate,
       text: "✨ Generate",
-      params: { data: { tweetTextareaWrapper } },
+      params: { data: { mainWrapper } },
       handler: generateHandle,
     },
     {
+      disabled: false,
       tag: ButtonTag.Translate,
       text: "🌎 Translate",
-      params: { data: { tweetTextareaWrapper } },
+      params: { data: { mainWrapper } },
       handler: generateHandle,
     },
   ];
@@ -97,45 +99,52 @@ async function ttTwitterReply(): Promise<void> {
     }
     buttonList.push(
       {
+        disabled: false,
         tag: ButtonTag.Approval,
         text: "👍 Approval",
-        params: { data: { tweetTextareaWrapper, replayContent } },
+        params: { data: { dialogWrapper, replayContent } },
         handler: generateHandle,
       },
       {
+        disabled: false,
         tag: ButtonTag.Disapproval,
         text: "👎 Disapproval",
-        params: { data: { tweetTextareaWrapper, replayContent } },
+        params: { data: { dialogWrapper, replayContent } },
         handler: generateHandle,
       },
       {
+        disabled: false,
         tag: ButtonTag.Support,
         text: "🫶 Support",
-        params: { data: { tweetTextareaWrapper, replayContent } },
+        params: { data: { dialogWrapper, replayContent } },
         handler: generateHandle,
       },
       {
+        disabled: false,
         tag: ButtonTag.Joke,
         text: "🔥 Joke",
-        params: { data: { tweetTextareaWrapper, replayContent } },
+        params: { data: { dialogWrapper, replayContent } },
         handler: generateHandle,
       },
       {
+        disabled: false,
         tag: ButtonTag.Idea,
         text: "💡 Idea",
-        params: { data: { tweetTextareaWrapper, replayContent } },
+        params: { data: { dialogWrapper, replayContent } },
         handler: generateHandle,
       },
       {
+        disabled: false,
         tag: ButtonTag.Question,
         text: "❓ Question",
-        params: { data: { tweetTextareaWrapper, replayContent } },
+        params: { data: { dialogWrapper, replayContent } },
         handler: generateHandle,
       },
       {
+        disabled: false,
         tag: ButtonTag.Translate,
         text: "🌎 Translate",
-        params: { data: { tweetTextareaWrapper } },
+        params: { data: { dialogWrapper } },
         handler: generateHandle,
       },
     );
@@ -143,15 +152,17 @@ async function ttTwitterReply(): Promise<void> {
     // post
     buttonList.push(
       {
+        disabled: false,
         tag: ButtonTag.Generate,
         text: "✨ Generate",
-        params: { data: { tweetTextareaWrapper } },
+        params: { data: { dialogWrapper } },
         handler: generateHandle,
       },
       {
+        disabled: false,
         tag: ButtonTag.Translate,
         text: "🌎 Translate",
-        params: { data: { tweetTextareaWrapper } },
+        params: { data: { dialogWrapper } },
         handler: generateHandle,
       },
     );
@@ -168,7 +179,16 @@ async function generateHandle(
   tag: ButtonTag,
   params: HandlerParams,
 ): Promise<void> {
-  const { tweetTextareaWrapper, replayContent } = params.data;
+  console.log("generateHandle", tag, params);
+  const { dialogWrapper, replayContent } = params.data;
+  if (!dialogWrapper) {
+    return;
+  }
+
+  const tweetTextareaWrapper = dialogWrapper.querySelector(
+    "div[data-testid=tweetTextarea_0]",
+  ) as HTMLElement;
+
   if (!tweetTextareaWrapper) {
     return;
   }
@@ -179,6 +199,9 @@ async function generateHandle(
   }
 
   let sourceContent = replayContent || tweetTextareaWrapper.textContent || "";
+  if (sourceContent === "") {
+    return;
+  }
   const generateText = await generateContent(
     sourceContent,
     tag,

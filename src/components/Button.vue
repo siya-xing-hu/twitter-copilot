@@ -1,9 +1,14 @@
 <template>
   <div>
     <!-- 遍历按钮列表 -->
-    <button v-for="button in buttonList" :key="button.tag" :id="button.tag" :disabled="button.disabled"
+    <button
+      v-for="button in buttonList"
+      :key="button.tag"
+      :id="button.tag"
+      :disabled="button.disabled"
       class="bg-blue-400 hover:bg-blue-500 text-white font-light py-1 px-2 rounded-md m-0.5"
-      @click="handleClick(button)">
+      @click="handleClick(button)"
+    >
       {{ button.text }}
     </button>
   </div>
@@ -11,10 +16,11 @@
 
 <script lang="ts" setup>
 import { defineProps } from "vue";
+import { ButtonData } from "./button";
 
 const { buttonList } = defineProps(["buttonList"]);
 
-const handleClick = async (button: any) => {
+const handleClick = async (button: ButtonData) => {
   if (button.disabled) {
     return;
   }

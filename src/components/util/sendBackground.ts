@@ -11,6 +11,8 @@ export async function generateContent(
       payload: { data: { tag, content } },
     };
 
+    console.log("generateContent", messageData);
+
     chrome.runtime?.id &&
       chrome.runtime.sendMessage(messageData, (resp: MessageData) => {
         const result = resp?.payload?.data;
