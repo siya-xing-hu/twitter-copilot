@@ -1,4 +1,9 @@
-import { MessageData, MessageType, randomString } from "../utils/common";
+import {
+  isContent,
+  MessageData,
+  MessageType,
+  randomString,
+} from "../utils/common";
 import { createApp } from "vue";
 import Translate from "./Translate.vue";
 
@@ -88,17 +93,18 @@ export async function execTranslate(
     } else {
       // 翻译
       const textContent = targetDiv.textContent;
-      if (textContent) {
-        const translatedText = await translateContent(textContent);
-        if (!translatedText) {
-          console.log("No translated text.");
-          return;
-        }
-        createContainer(targetDiv, {
-          text: translatedText,
-          show: true,
-        });
+      if (!textContent || !isContent(textContent)) {
+        return;
       }
+      const translatedText = await translateContent(textContent);
+      if (!translatedText) {
+        console.log("No translated text.");
+        return;
+      }
+      createContainer(targetDiv, {
+        text: translatedText,
+        show: true,
+      });
     }
   }
 }

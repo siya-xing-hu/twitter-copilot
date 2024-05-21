@@ -1,4 +1,9 @@
-import { ButtonTag, MessageType, setInputText } from "../utils/common";
+import {
+  ButtonTag,
+  isContent,
+  MessageType,
+  setInputText,
+} from "../utils/common";
 import { generateContent } from "./util/sendBackground";
 import {
   ButtonData,
@@ -89,11 +94,11 @@ async function ttTwitterPost(): Promise<boolean> {
 }
 
 async function ttTwitterReply(): Promise<boolean> {
-  const dialogWrapper = document.querySelector("div[role=dialog]");
-  const tweetTextareaWrapper = dialogWrapper?.querySelector(
+  const mainWrapper = document.querySelector("div[role=dialog]");
+  const tweetTextareaWrapper = mainWrapper?.querySelector(
     "div[data-testid=tweetTextarea_0]",
   ) as HTMLElement | null;
-  const toolBarParentWrapper = dialogWrapper?.querySelector(
+  const toolBarParentWrapper = mainWrapper?.querySelector(
     "div[data-testid=toolBar]",
   );
 
@@ -105,7 +110,7 @@ async function ttTwitterReply(): Promise<boolean> {
     return false;
   }
 
-  const replayTweetTextWrapper = dialogWrapper?.querySelector(
+  const replayTweetTextWrapper = mainWrapper?.querySelector(
     "div[data-testid=tweetText",
   ) as HTMLElement;
 
@@ -121,49 +126,49 @@ async function ttTwitterReply(): Promise<boolean> {
         disabled: false,
         tag: ButtonTag.Approval,
         text: "👍 Approval",
-        params: { data: { dialogWrapper, replayContent } },
+        params: { data: { mainWrapper, replayContent } },
         handler: generateHandle,
       },
       {
         disabled: false,
         tag: ButtonTag.Disapproval,
         text: "👎 Disapproval",
-        params: { data: { dialogWrapper, replayContent } },
+        params: { data: { mainWrapper, replayContent } },
         handler: generateHandle,
       },
       {
         disabled: false,
         tag: ButtonTag.Support,
         text: "🫶 Support",
-        params: { data: { dialogWrapper, replayContent } },
+        params: { data: { mainWrapper, replayContent } },
         handler: generateHandle,
       },
       {
         disabled: false,
         tag: ButtonTag.Joke,
         text: "🔥 Joke",
-        params: { data: { dialogWrapper, replayContent } },
+        params: { data: { mainWrapper, replayContent } },
         handler: generateHandle,
       },
       {
         disabled: false,
         tag: ButtonTag.Idea,
         text: "💡 Idea",
-        params: { data: { dialogWrapper, replayContent } },
+        params: { data: { mainWrapper, replayContent } },
         handler: generateHandle,
       },
       {
         disabled: false,
         tag: ButtonTag.Question,
         text: "❓ Question",
-        params: { data: { dialogWrapper, replayContent } },
+        params: { data: { mainWrapper, replayContent } },
         handler: generateHandle,
       },
       {
         disabled: false,
         tag: ButtonTag.Translate,
         text: "🌎 Translate",
-        params: { data: { dialogWrapper } },
+        params: { data: { mainWrapper } },
         handler: generateHandle,
       },
     );
@@ -174,14 +179,14 @@ async function ttTwitterReply(): Promise<boolean> {
         disabled: false,
         tag: ButtonTag.Generate,
         text: "✨ Generate",
-        params: { data: { dialogWrapper } },
+        params: { data: { mainWrapper } },
         handler: generateHandle,
       },
       {
         disabled: false,
         tag: ButtonTag.Translate,
         text: "🌎 Translate",
-        params: { data: { dialogWrapper } },
+        params: { data: { mainWrapper } },
         handler: generateHandle,
       },
     );
@@ -277,12 +282,12 @@ async function generateHandle(
   params: HandlerParams,
 ): Promise<void> {
   console.log("generateHandle", tag, params);
-  const { dialogWrapper, replayContent } = params.data;
-  if (!dialogWrapper) {
+  const { mainWrapper, replayContent } = params.data;
+  if (!mainWrapper) {
     return;
   }
 
-  const tweetTextareaWrapper = dialogWrapper.querySelector(
+  const tweetTextareaWrapper = mainWrapper.querySelector(
     "div[data-testid=tweetTextarea_0]",
   ) as HTMLElement;
 
@@ -392,7 +397,8 @@ async function ttTwitterTranslate(): Promise<void> {
       // 如果 span 元素还有子节点，过滤
       const textContent = span.textContent;
       if (
-        !textContent || textContent.startsWith("http") ||
+        !textContent || !isContent(textContent) ||
+        textContent.startsWith("http") ||
         textContent.startsWith("https") || textContent.startsWith("@") ||
         textContent.startsWith("#")
       ) {

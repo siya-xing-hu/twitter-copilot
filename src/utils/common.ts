@@ -84,6 +84,15 @@ export function setInputText(inputEl: HTMLElement | null, text: string): void {
   }
 }
 
+export function isContent(text: string): boolean {
+  const specialCharsRegex = /^[\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~「」]*$/;
+  // 如果匹配正则表达式，则不进行翻译
+  if (specialCharsRegex.test(text)) {
+    return false;
+  }
+  return true; // 如果不匹配，则需要翻译
+}
+
 // 定义消息的类型
 export interface MessageData {
   type: MessageType;
