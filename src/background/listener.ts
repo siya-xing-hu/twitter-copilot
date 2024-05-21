@@ -56,6 +56,19 @@ function isTwitterUrl(url: string) {
     url.startsWith("https://x.com/");
 }
 
+// // 判断是否是 Twitter Post URL
+// const postUrlPattern =
+//   /^(https:\/\/(x|twitter)\.com\/(intent\/post|compose\/post|home)(\/.*)?)/;
+// function isTwitterPostUrl(url: string) {
+//   return postUrlPattern.test(url);
+// }
+
+// // 判断是否是 Twitter DM URL
+// const dmUrlPattern = /^(https:\/\/(x|twitter)\.com\/(messages)(\/.*)?)/;
+// function isTwitterDMUrl(url: string) {
+//   return dmUrlPattern.test(url);
+// }
+
 // 判断是否是 Product Hunt URL
 function isProductHuntUrl(url: string) {
   return url.startsWith("https://www.producthunt.com/");

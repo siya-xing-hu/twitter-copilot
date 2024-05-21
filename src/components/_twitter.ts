@@ -15,17 +15,31 @@ export const translateConfig = {
 };
 
 export async function ttTwitterInit(): Promise<void> {
-  execObserver(async () => {
-    await ttTwitterPost();
-    await ttTwitterReply();
-
-    if (translateConfig.xTranslate) {
-      await ttTwitterTranslate();
-    }
+  execObserver(document.body, async () => {
+    return await ttTwitterPost();
   });
+
+  execObserver(document.body, async () => {
+    return await ttTwitterReply();
+  });
+
+  execObserver(document.body, async () => {
+    return await ttTwitterDM();
+  });
+
+  execObserver(document.body, async () => {
+    return await ttTwitterDM2();
+  });
+
+  if (translateConfig.xTranslate) {
+    execObserver(document.body, async () => {
+      await ttTwitterTranslate();
+      return false;
+    });
+  }
 }
 
-async function ttTwitterPost(): Promise<void> {
+async function ttTwitterPost(): Promise<boolean> {
   const mainWrapper = document.querySelector(
     "main[role=main] div[data-testid=primaryColumn]",
   );
@@ -37,12 +51,12 @@ async function ttTwitterPost(): Promise<void> {
   );
 
   if (!toolBarParentWrapper || !tweetTextareaWrapper) {
-    return;
+    return false;
   }
 
   // 添加翻译按钮响应事件
   if (toolBarParentWrapper.getAttribute("tt-button-is-done") === "true") {
-    return;
+    return false;
   }
 
   const buttonList: ButtonData[] = [
@@ -67,9 +81,11 @@ async function ttTwitterPost(): Promise<void> {
     ButtonLocationEnum.Previous,
     buttonList,
   );
+
+  return true;
 }
 
-async function ttTwitterReply(): Promise<void> {
+async function ttTwitterReply(): Promise<boolean> {
   const dialogWrapper = document.querySelector("div[role=dialog]");
   const tweetTextareaWrapper = dialogWrapper?.querySelector(
     "div[data-testid=tweetTextarea_0]",
@@ -79,11 +95,11 @@ async function ttTwitterReply(): Promise<void> {
   );
 
   if (!toolBarParentWrapper || !tweetTextareaWrapper) {
-    return;
+    return false;
   }
 
   if (toolBarParentWrapper.getAttribute("tt-button-is-done") === "true") {
-    return;
+    return false;
   }
 
   const replayTweetTextWrapper = dialogWrapper?.querySelector(
@@ -95,7 +111,7 @@ async function ttTwitterReply(): Promise<void> {
     // reply
     const replayContent = replayTweetTextWrapper.textContent || "";
     if (replayContent === "") {
-      return;
+      return false;
     }
     buttonList.push(
       {
@@ -173,6 +189,84 @@ async function ttTwitterReply(): Promise<void> {
     ButtonLocationEnum.Previous,
     buttonList,
   );
+
+  return true;
+}
+
+async function ttTwitterDM(): Promise<boolean> {
+  const dmWrapper = document.querySelector(
+    "main[role=main] aside[role=complementary] button[data-testid=dmComposerSendButton]",
+  );
+
+  if (!dmWrapper) {
+    return false;
+  }
+
+  // 添加翻译按钮响应事件
+  if (
+    dmWrapper.getAttribute("tt-button-is-done") === "true" ||
+    dmWrapper.parentElement?.parentElement?.querySelector(
+      "div[tt-button-is-done]",
+    )
+  ) {
+    return true;
+  }
+
+  const buttonList: ButtonData[] = [
+    {
+      disabled: false,
+      tag: ButtonTag.Translate,
+      text: "🌎 Translate",
+      params: { data: { dmWrapper } },
+      handler: dmGenerateHandle,
+    },
+  ];
+
+  createButtonContainer(
+    dmWrapper.parentElement as HTMLElement,
+    ButtonLocationEnum.Previous,
+    buttonList,
+  );
+
+  return true;
+}
+
+async function ttTwitterDM2(): Promise<boolean> {
+  const dmWrapper = document.querySelector(
+    "div[id=react-root] div[data-testid=DMDrawer] aside[role=complementary] button[data-testid=dmComposerSendButton]",
+  );
+
+  if (!dmWrapper) {
+    return false;
+  }
+
+  // 添加翻译按钮响应事件
+  if (
+    dmWrapper.getAttribute("tt-button-is-done") === "true" ||
+    dmWrapper.parentElement?.parentElement?.querySelector(
+      "div[tt-button-is-done]",
+    )
+  ) {
+    return true;
+  }
+
+  const buttonList: ButtonData[] = [
+    {
+      disabled: false,
+      tag: ButtonTag.Translate,
+      text: "🌎 Translate",
+      params: { data: { dmWrapper } },
+      handler: dmGenerateHandle,
+    },
+  ];
+
+  createButtonContainer(
+    dmWrapper.parentElement as HTMLElement,
+    ButtonLocationEnum.Previous,
+    buttonList,
+  );
+
+  return true;
 }
 
 async function generateHandle(
@@ -223,6 +317,46 @@ async function generateHandle(
   } else {
     setInputText(tweetTextareaWrapper, generateText);
   }
+}
+
+async function dmGenerateHandle(
+  tag: ButtonTag,
+  params: HandlerParams,
+): Promise<void> {
+  console.log("dmGenerateHandle", tag, params);
+  const { dmWrapper } = params.data;
+  if (!dmWrapper) {
+    return;
+  }
+
+  const dmTextareaWrapper = dmWrapper.parentElement.querySelector(
+    "div[data-testid=dmComposerTextInput]",
+  ) as HTMLElement;
+
+  if (!dmTextareaWrapper) {
+    return;
+  }
+  const sourceContent = dmTextareaWrapper.textContent || "";
+  if (sourceContent === "") {
+    return;
+  }
+  const generateText = await generateContent(
+    sourceContent,
+    tag,
+    MessageType.AIGenerate,
+  );
+
+  createDialogContainer(
+    generateText,
+    () => {
+      // 确认按钮的回调
+      setInputText(dmTextareaWrapper, generateText);
+    },
+    () => {
+      // 取消按钮的回调
+      console.log("Operation cancelled.");
+    },
+  );
 }
 
 async function ttTwitterTranslate(): Promise<void> {

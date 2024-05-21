@@ -10,12 +10,12 @@ import { execObserver } from "./util/mutationObserver";
 import { ButtonTag, MessageType } from "../utils/common";
 
 export async function ttProductHuntInit(): Promise<void> {
-  execObserver(async () => {
-    await ttProductHuntReply();
+  execObserver(document.body, async () => {
+    return await ttProductHuntReply();
   });
 }
 
-async function ttProductHuntReply(): Promise<void> {
+async function ttProductHuntReply(): Promise<boolean> {
   const formWrapper = document.querySelector(
     "main form[data-test=comment-form]",
   );
@@ -23,16 +23,16 @@ async function ttProductHuntReply(): Promise<void> {
     "button[data-test=form-submit-button]",
   ) as HTMLElement | null;
   if (!formWrapper || !submitButtonWrapper) {
-    return;
+    return false;
   }
 
   const targetWrapper = submitButtonWrapper.parentElement?.parentElement;
   if (!targetWrapper) {
-    return;
+    return false;
   }
 
   if (targetWrapper.getAttribute("tt-button-is-done") === "true") {
-    return;
+    return false;
   }
   const textareaWrapper = targetWrapper.parentElement?.querySelector(
     "textarea",
@@ -53,6 +53,7 @@ async function ttProductHuntReply(): Promise<void> {
     ButtonLocationEnum.Next,
     buttonList,
   );
+  return true;
 }
 
 async function replyHandle(

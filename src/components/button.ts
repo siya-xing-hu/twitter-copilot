@@ -29,6 +29,7 @@ export function createButtonContainer(
 ): void {
   const div = document.createElement("div");
   div.style.textOverflow = "unset";
+  div.setAttribute("tt-button-is-done", "true");
 
   const app = createApp(Button, {
     buttonList,
