@@ -33,7 +33,10 @@ export async function ttTwitterInit(): Promise<void> {
 
   if (translateConfig.xTranslate) {
     execObserver(document.body, async () => {
-      await ttTwitterTranslate();
+      if (translateConfig.xTranslate) {
+        await ttTwitterTranslate();
+        return false;
+      }
       return false;
     });
   }
