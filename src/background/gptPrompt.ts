@@ -58,41 +58,62 @@ export async function execGptPrompt(
   return Promise.resolve(result_json.result);
 }
 
-const TEMPLATES = [{
-  template: `
-    [Topic] 101:
+const TEMPLATES = [
+  // {
+  //   template: `
+  //   [Topic] 101:
 
-    - Don't [Tip 1 negation], [Tip 1] 
-    - Don't [Tip 2 negation], [Tip 2] 
-    - Don't [Tip 3 negation], [Tip 3] 
-    ...
-    - Don't [Tip N negation], [Tip N]
-  `,
-  content_structure: `
-    Topic: {Topic}
-    - {Tip}
-    - {Tip}
-    - {Tip}
-    ...
-  `,
-}, {
-  template: `
-    [Count of topics] [Topic] Hacks to [Achieve Outcome]
-    1. [Hack 1]
-    2. [Hack 2]
-    3. [Hack 3]
-    ...
-    N. [Hack N]
-  `,
-  content_structure: `
-    Topic: {Topic}
+  //   - Don't [Tip 1 negation], [Tip 1] 
+  //   - Don't [Tip 2 negation], [Tip 2] 
+  //   - Don't [Tip 3 negation], [Tip 3] 
+  //   ...
+  //   - Don't [Tip N negation], [Tip N]
+  // `,
+  //   content_structure: `
+  //   Topic: {Topic}
+  //   - {Tip}
+  //   - {Tip}
+  //   - {Tip}
+  //   ...
+  // `,
+  // },
+  // {
+  //   template: `
+  //   [Count of topics] [Topic] Hacks to [Achieve Outcome]
+  //   1. [Hack 1]
+  //   2. [Hack 2]
+  //   3. [Hack 3]
+  //   ...
+  //   N. [Hack N]
+  // `,
+  //   content_structure: `
+  //   Topic: {Topic}
 
-    Desired outcome: {Achieve Outcome}
+  //   Desired outcome: {Achieve Outcome}
     
-    {Hack 1}
-    {Hack 2}
-    {Hack 3}
+  //   {Hack 1}
+  //   {Hack 2}
+  //   {Hack 3}
+  //   ...
+  //   {Hack N}
+  // `,
+  // },
+  {
+    template: `
+    How do you prefer to [do something]?
+
+    1. [case 1]
+    2. [case 2]
+    3. [case 3]
     ...
-    {Hack N}
+    N. [case N]
+
+    Or something else?
   `,
-}];
+    content_structure: `
+    Action: {do something}
+
+    The cases you prefer: {case 1}, {case 2}, {case 3}, ..., {case N}
+  `,
+  },
+];

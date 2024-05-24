@@ -1,6 +1,6 @@
 import "./popup.css";
 import { retry } from "./utils/common";
-import { execTranslate } from "./components/translate";
+import { execNotionTranslate, execTranslate } from "./components/translate";
 import { ttProductHuntInit } from "./components/_producthunt";
 import { translateConfig, ttTwitterInit } from "./components/_twitter";
 
@@ -45,7 +45,11 @@ document.addEventListener("keyup", async (event) => {
     }
     try {
       isTranslating = true;
-      await execTranslate(currentClientX, currentClientY);
+      if (window.location.hostname.includes("notion.site")) {
+        await execNotionTranslate(currentClientX, currentClientY);
+      } else {
+        await execTranslate(currentClientX, currentClientY);
+      }
     } catch (error) {
       console.error(error);
     } finally {

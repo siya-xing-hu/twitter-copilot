@@ -22,8 +22,6 @@ export async function translate(
     return Promise.reject(new Error("translate result error!"));
   }
 
-  console.log(resp);
-
   return resp[0]
     .map((item: any) => item[0])
     .filter((item: any) => typeof item === "string")

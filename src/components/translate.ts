@@ -109,6 +109,33 @@ export async function execTranslate(
   }
 }
 
+export async function execNotionTranslate(
+  clientX: number,
+  clientY: number,
+): Promise<void> {
+  const targetDiv = findNearestDivAndText(clientX, clientY);
+
+  if (targetDiv) {
+    // 翻译
+    const textContent = targetDiv.textContent;
+    if (!textContent || !isContent(textContent)) {
+      console.log("textContent: ", textContent);
+      return;
+    }
+    if (textContent.includes("\u200D\n")) {
+      targetDiv.textContent = textContent.split("\u200D\n")[0];
+      return;
+    }
+    const translatedText = await translateContent(textContent);
+    if (!translatedText) {
+      console.log("No translated text.");
+      return;
+    }
+
+    targetDiv.textContent = textContent + "\u200D\n" + translatedText;
+  }
+}
+
 function findNearestDivAndText(
   clientX: number,
   clientY: number,
@@ -127,8 +154,12 @@ function findNearestDivAndText(
       element;
       element = element.parentElement
     ) {
-      // 如果是 div 元素、 H 元素
-      if (element.tagName === "DIV" || element.tagName.match(/H\d/)) {
+      // 如果是 div 元素、 H 元素、span 元素、p 元素、a 元素
+      if (
+        element.tagName === "DIV" || element.tagName.match(/H\d/) ||
+        element.tagName === "SPAN" || element.tagName === "P" ||
+        element.tagName === "A"
+      ) {
         targetDiv = element as HTMLElement;
         break;
       }

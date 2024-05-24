@@ -31,7 +31,7 @@ async function ttProductHuntReply(): Promise<boolean> {
     return false;
   }
 
-  if (targetWrapper.getAttribute("tt-button-is-done") === "true") {
+  if (formWrapper.getAttribute("tt-button-is-done") === "true") {
     return false;
   }
   const textareaWrapper = targetWrapper.parentElement?.querySelector(

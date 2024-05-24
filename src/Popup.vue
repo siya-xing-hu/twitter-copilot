@@ -58,11 +58,11 @@ onMounted(async () => {
         setTimeout(() => {
           field.isLoading = false;
           field.isSuccess = true;
-        }, 1000);
+        }, 500);
         setTimeout(() => {
           field.isLoading = false;
           field.isSuccess = false;
-        }, 3000);
+        }, 1000);
       }
     );
   });
